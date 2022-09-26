@@ -2,13 +2,13 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 	<xsl:template name="enquiryList">
 		<div>
-			
+
 				<xsl:attribute name="class">
 					<xsl:call-template name="apply_Style">
 						<xsl:with-param name="actualclass" select="'enquiry_list_container'"/>
 					</xsl:call-template>
 				</xsl:attribute>
-			
+
 			<!-- Each row on our enquiry will show up as an icon and we need to push the whole data row into a text box for use in the detail view -->
 			<!-- By convention, we are looking for the following data to display: Text or Title, Image -->
 			<xsl:call-template name="header">
@@ -20,20 +20,20 @@
 							<xsl:with-param name="actualclass" select="'enquiry_list_item_container'"/>
 						</xsl:call-template>
 					</xsl:attribute>
-					
+
 					<xsl:attribute name="id">list<xsl:value-of select="position()"/></xsl:attribute>
 					<input type="hidden">
 						<xsl:attribute name="id">group<xsl:value-of select="position()"/></xsl:attribute>
 						<xsl:attribute name="value"><xsl:call-template name="dynamicmatch"><xsl:with-param name="item" select="'Group'"/></xsl:call-template></xsl:attribute>
 					</input>
 					<table>
-						
+
 						<xsl:attribute name="class">
 							<xsl:call-template name="apply_Style">
 								<xsl:with-param name="actualclass" select="'enquiryList'"/>
 							</xsl:call-template>
 						</xsl:attribute>
-						
+
 						<tr>
 							<td align="center">
 								<xsl:call-template name="dynamicmatch">
@@ -44,20 +44,34 @@
 						<tr>
 							<td align="center">
 								<a>
-									<xsl:attribute name="onclick"><xsl:call-template name="enquiry_list_drilldown"/></xsl:attribute>
-									<xsl:attribute name="href">javascript:void(0)</xsl:attribute>
-										<xsl:call-template name="dynamicmatch">
-											<xsl:with-param name="item" select="'Image'"/>
-										</xsl:call-template>
-								
+									<!-- Show T24 commands in browser window status bar if showStausInfo parameter is set to 'YES' -->
+									<xsl:choose>
+										<xsl:when test="$showStatusInfo='false'">
+											<xsl:attribute name="onclick"><xsl:call-template name="enquiry_list_drilldown" /></xsl:attribute>
+											<xsl:attribute name="href">javascript:void(0)</xsl:attribute>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:attribute name="href"><xsl:call-template name="enquiry_list_drilldown" /></xsl:attribute>
+										</xsl:otherwise>
+									</xsl:choose>
+									<xsl:call-template name="dynamicmatch">
+										<xsl:with-param name="item" select="'Image'"/>
+									</xsl:call-template>
 								</a>
 							</td>
 						</tr>
 						<tr>
 							<td align="center">
 								<a>
-									<xsl:attribute name="onclick"><xsl:call-template name="enquiry_list_drilldown"/></xsl:attribute>
-									<xsl:attribute name="href">javascript:void(0)</xsl:attribute>
+									<xsl:choose>
+										<xsl:when test="$showStatusInfo='false'">
+											<xsl:attribute name="onclick"><xsl:call-template name="enquiry_list_drilldown"/></xsl:attribute>
+											<xsl:attribute name="href">javascript:void(0)</xsl:attribute>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:attribute name="href"><xsl:call-template name="enquiry_list_drilldown"/></xsl:attribute>
+										</xsl:otherwise>
+									</xsl:choose>
 									<xsl:value-of select="/responseDetails/window/panes/pane/dataSection/enqResponse/drills/d[1]/cap"/>
 								</a>
 							</td>
@@ -94,14 +108,14 @@
 	<!-- detail display of an item showing all data... -->
 	<xsl:template name="header">
 		<div>
-		
+
 			<xsl:attribute name="class">
 				<xsl:call-template name="apply_Style">
 					<xsl:with-param name="actualclass" select="'enquiry_list_detail_container'"/>
 				</xsl:call-template>
 			</xsl:attribute>
-		
-			
+
+
 			<select id="groupfilter" onchange="listFilterChange()">
 				<option>All</option>
 				<xsl:for-each select="//responseDetails/window/panes/pane/dataSection/enqResponse/r/c[1][not(.=preceding::r/c[1])]">

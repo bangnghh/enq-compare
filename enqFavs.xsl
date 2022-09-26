@@ -9,6 +9,14 @@
 	<xsl:variable name="skin" select="string(/responseDetails/userDetails/skin)"/>
 	<xsl:variable name="imgRoot" select="concat('../plaf/images/', $skin)"/>
 
+	<!-- Variable to show or hide T24 commands in browser window status bar -->
+	<xsl:variable name="showStatusInfo">
+        <xsl:choose>
+        	<xsl:when test="responseDetails/userDetails/showStatusInfo='true'">true</xsl:when>
+            <xsl:otherwise>false</xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+
 	<xsl:template match="/" name="enqFavsResponse">
 		<xsl:for-each select="/responseDetails/enqFav">
 			<xsl:call-template name="enqFavourites"/>
@@ -25,10 +33,10 @@
 				<xsl:variable name="ptext" select="/responseDetails/window/translations/favNamePrompt"/>
 				<xsl:variable name="etext" select="/responseDetails/window/translations/favNameError"/>
 				<xsl:variable name="htext" select="/responseDetails/window/translations/favNameHelp"/>
-				
+
 				<!-- Extract the enquiry name from the response once again, because there may be a chance the enquiry name variable may not be initialized in window.xsl -->
 				<!-- It avoids transformation error of extracting value from non exists variable -->
-				<xsl:variable name="enquiry"> 
+				<xsl:variable name="enquiry">
 					<xsl:choose>
 						<xsl:when test="/responseDetails/window/panes/pane/dataSection/enqResponse/enqid!=''">
 							<xsl:value-of select="/responseDetails/window/panes/pane/dataSection/enqResponse/enqid"/>
@@ -40,7 +48,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>
-				
+
 				<table cellpadding="3" rules="groups" frame="void"  id="enqfav" tabindex="0">
 					<xsl:attribute name="class">
 						<xsl:choose>
@@ -72,7 +80,18 @@
 						<xsl:for-each select="favs/fav">
 							<tr>
 								<td>
-									<a onclick="javascript:EnqFavourites.run(&quot;{desc}&quot;)" href="javascript:void(0)" alt="{../../runTip}" title="{../../runTip}" tabindex="0"><xsl:value-of select="desc"/></a>
+									<a alt="{../../runTip}" title="{../../runTip}" tabindex="0">
+										<xsl:choose>
+											<xsl:when test="$showStatusInfo='false'">
+												<xsl:attribute name="onclick">javascript:EnqFavourites.run('<xsl:value-of select="desc"/>')</xsl:attribute>
+												<xsl:attribute name="href">javascript:void(0)</xsl:attribute>
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:attribute name="href">javascript:EnqFavourites.run('<xsl:value-of select="desc"/>')</xsl:attribute>
+											</xsl:otherwise>
+										</xsl:choose>
+										<xsl:value-of select="desc"/>
+									</a>
 								</td>
 								<td>
 									<xsl:if test="type = 'user'">
@@ -95,6 +114,5 @@
 				<xsl:with-param name="actualclass" select="$actualclass"/>
 			</xsl:call-template>
 	</xsl:template>
-	
+
 </xsl:stylesheet>
-		

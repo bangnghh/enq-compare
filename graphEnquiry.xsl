@@ -63,6 +63,8 @@
 
   _leftMargin = <xsl:value-of select="/responseDetails/window/panes/pane/dataSection/enqResponse/control/GraphEnq/leftMargin"/>;
   
+  _amountFormat = "<xsl:value-of select="/responseDetails/userDetails/amountFormat"/>";
+  
   _showGridX = false;
   <xsl:if test="/responseDetails/window/panes/pane/dataSection/enqResponse/control/GraphEnq/gridX" >
   	_showGridX = true;
@@ -173,12 +175,39 @@
           '<xsl:value-of select="cap"/>',
         </xsl:when>
         <xsl:otherwise>
-          '<xsl:value-of select="cap"/>'
+          '<xsl:call-template name="mask-apos">
+                <xsl:with-param name="string" select="cap"/>
+          </xsl:call-template>'
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
     )
     addOriginalRow(nextRow);
   </xsl:template>
+     
+  <xsl:template name="mask-apos">
+		<xsl:param name="string"/>
+		<!-- create an $apos variable to make it easier to refer to -->
+		<xsl:variable name="apos" select='"&apos;"'/>
+		<xsl:choose>
+			<!-- if the string contains an apostrophe... -->
+			<xsl:when test="contains($string, $apos)">
+				<!-- ... give the value before the apostrophe... -->
+				<xsl:value-of select="substring-before($string, $apos)"/>
+				<!-- ...  replace apostrophe with character 'a' ... -->
+				
+				<xsl:text>a</xsl:text>
+				<!-- ... and the result of applying the template to the string after the apostrophe -->
+				<xsl:call-template name="mask-apos">
+					<xsl:with-param name="string" select="substring-after($string, $apos)"/>
+				</xsl:call-template>
+			</xsl:when>
+			<!-- otherwise... -->
+			<xsl:otherwise>
+				<!-- ... just give the value of the string -->
+				<xsl:value-of select="$string"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 
 </xsl:stylesheet> 
